@@ -172,6 +172,7 @@ void calculateChecksum(const char *filename, uint32_t* checksum) {
 
 // Função para lidar com a escrita no arquivo
 void receiveData(Message *msg, FILE *file, Message *response) {
+    removeByteStuffing(msg->Data);
     fwrite(msg->Data, 1, getTam(msg->Header), file);
     fflush(file);
     setType(&response->Header, ACK);
@@ -210,6 +211,7 @@ void receiveChecksum(Message* msg, Message* response, char** outputFile){
 
 void sendData(FILE *file, Message *msg, uint8_t *seq, uint8_t *bytesRead, unsigned char *tempBuffer) {
     *bytesRead = fread(tempBuffer, 1, MAX_DATA_SIZE, file);
+    addByteStuffing(tempBuffer);
     fillPackage(msg, *seq, *bytesRead, DATA, tempBuffer);
 }
 
@@ -249,37 +251,16 @@ void configureTimeout(int sockfd) {
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 }
 
-void addByteStuffing(unsigned char *buffer, uint8_t *size) {
-    uint8_t newSize = 0;
-    unsigned char tempBuffer[MAX_DATA_SIZE];
+void addByteStuffing(unsigned char *buffer) {
+    if(buffer[10] == 0x81)
+        buffer[11] = 0xFF;
+    else if(buffer[10] == 0x88)
+        buffer[11] = 0xFF;
+}   
 
-    for (int i = 0; i < *size; i++) {
-        tempBuffer[newSize++] = buffer[i];
-
-        // Verificar se o byte atual é 0x81 ou 0x88
-        if (buffer[i] == 0x81 || buffer[i] == 0x88) {
-            // Colocar 0xFF depois de 0x81 ou 0x88
-            if (newSize < MAX_DATA_SIZE - 1) {  // Garantir que há espaço para o byte extra
-                tempBuffer[newSize++] = 0xFF; // Inserir byte de stuffing
-            }
-        }
-    }
-
-    // Copiar os dados modificados de volta para o buffer original
-    memcpy(buffer, tempBuffer, *size);
-}
-
-void removeByteStuffing(unsigned char *buffer, uint8_t *size) {
-    uint8_t newSize = 0;
-
-    for (int i = 0; i < *size; i++) {
-        // Copiar o byte atual para o novo buffer
-        buffer[newSize++] = buffer[i];
-
-        // Verificar se o byte é 0xFF após 0x81 ou 0x88
-        if ((buffer[i] == 0x81 || buffer[i] == 0x88) && i + 1 < *size && buffer[i + 1] == 0xFF) {
-            i++;  // Ignorar o byte 0xFF após 0x81 ou 0x88
-        }
-    }
-    *size = newSize;  // Atualizar o tamanho do buffer
+void removeByteStuffing(unsigned char *buffer) {
+    if(buffer[10] == 0x81)
+        buffer[11] = 0x00;
+    else if(buffer[10] == 0x88)
+        buffer[11] = 0x48;
 }

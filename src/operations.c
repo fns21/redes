@@ -37,7 +37,6 @@ void partFileAndSend(const char *fileName, int sockfd, int operation) {
         if (bytesRead == 0 && !eof) { // Ler novos dados apenas se não for retransmissão
             switch (operation) {
                 case DATA:
-                    addByteStuffing(tempBuffer, &bytesRead);
                     sendData(file, &msg, &seq, &bytesRead, tempBuffer);
                     if (bytesRead < MAX_DATA_SIZE) eof = 1; // Fim do arquivo
                     break;
@@ -133,7 +132,6 @@ void recvPkgAndAssemble(char *outputFile, int sockfd, FILE *file, int *operation
                 switch (*operation) {
                     case DATA:
                         receiveData(&msg, file, &response);
-                        removeByteStuffing(msg.Data, &bytesReceived);
                         break;
                     // Todos recebem apenas o nome
                     case BACKUP:

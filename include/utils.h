@@ -34,7 +34,7 @@ void sendFilename(const char *fileName, int *offset, int fileNameSize, Message *
 void sendSize(const char *fileName, Message *msg, uint8_t *seq, uint8_t *bytesRead);
 void sendChecksum(const char *fileName, Message *msg, uint8_t *seq, uint8_t *bytesRead);
 void configureTimeout(int sockfd);
-void addByteStuffing(unsigned char *buffer, uint8_t *size);
-void removeByteStuffing(unsigned char *buffer, uint8_t *size);
+void addByteStuffing(unsigned char *buffer);
+void removeByteStuffing(unsigned char *buffer);
 
 #endif
