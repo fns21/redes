@@ -103,19 +103,19 @@ int isValidPackage(Message msg, int bytesReceived, int expectedSeq) {
 
     // Verifica se o pacote está incompleto
     if (bytesReceived != sizeof(msg)) {
-        printf("Pacote incompleto. Enviando NACK para seq: %d\n", getSeq(msg.Header));
+        //printf("Pacote incompleto. Enviando NACK para seq: %d\n", getSeq(msg.Header));
         return 0;
     }
 
     // Verifica a sequência do pacote recebido
     if (getSeq(msg.Header) != expectedSeq) {
-        printf("Pacote fora de sequência. Enviando NACK para seq: %d\n", getSeq(msg.Header));
+        //printf("Pacote fora de sequência. Enviando NACK para seq: %d\n", getSeq(msg.Header));
         return 0;
     }
 
     // Verifica CRC
     if (msg.CRC != calculateCRC(msg)) {
-        printf("Pacote inválido. Enviando NACK para seq: %d\n", getSeq(msg.Header));
+        //printf("Pacote inválido. Enviando NACK para seq: %d\n", getSeq(msg.Header));
         return 0;
     }
 
