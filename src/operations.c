@@ -127,46 +127,49 @@ void recvPkgAndAssemble(char *outputFile, int sockfd, FILE *file, int *operation
     char filename[FILENAME_SIZE] = {0};
 
     while ((bytesReceived = recv(sockfd, &msg, sizeof(msg), 0)) > 0) {
-        if (msg.MI == INIT_MARKER && isValidPackage(msg, bytesReceived, expectedSeq)) {
-            *operation = getType(msg.Header);
-            switch (*operation) {
-                case DATA:
-                    receiveData(&msg, file, &response);
-                    removeByteStuffing(msg.Data, &bytesReceived);
-                    break;
-                // Todos recebem apenas o nome
-                case BACKUP:
-                case RESTORE:
-                case VERIFY:
-                    receiveFilename(filename, &msg);
-                    setType(&response.Header, OK);
-                    break;
-                case SIZE:
-                    receiveSize(&msg, &response);
-                    break;
-                case OKCHECKSUM: 
-                    receiveChecksum(&msg, &response, &outputFile);
-                    break;
-                case END:
-                    setType(&response.Header, ACK);
-                    break;
-                default:
-                    setType(&response.Header, ERROR);
-                    break;
-            }
+        if (msg.MI == INIT_MARKER){
+            if(isValidPackage(msg, bytesReceived, expectedSeq)) {
+                *operation = getType(msg.Header);
+                switch (*operation) {
+                    case DATA:
+                        receiveData(&msg, file, &response);
+                        removeByteStuffing(msg.Data, &bytesReceived);
+                        break;
+                    // Todos recebem apenas o nome
+                    case BACKUP:
+                    case RESTORE:
+                    case VERIFY:
+                        receiveFilename(filename, &msg);
+                        setType(&response.Header, OK);
+                        break;
+                    case SIZE:
+                        receiveSize(&msg, &response);
+                        break;
+                    case OKCHECKSUM: 
+                        receiveChecksum(&msg, &response, &outputFile);
+                        break;
+                    case END:
+                        setType(&response.Header, ACK);
+                        break;
+                    default:
+                        setType(&response.Header, ERROR);
+                        break;
+                }
 
-            printf("ACK recebido!\n");
-            setSeq(&response.Header, expectedSeq);
-            expectedSeq = (expectedSeq + 1) % 32;
-            send(sockfd, &response, sizeof(response), 0);
+                printf("ACK recebido!\n");
+                setSeq(&response.Header, expectedSeq);
+                expectedSeq = (expectedSeq + 1) % 32;
+                send(sockfd, &response, sizeof(response), 0);
 
-            if (getTam(msg.Header) < MAX_DATA_SIZE) {
-                break;
+                if (getTam(msg.Header) < MAX_DATA_SIZE) {
+                    break;
+                }
             }
-        } else {
-            setSeq(&response.Header, expectedSeq);
-            setType(&response.Header, NACK);
-            send(sockfd, &response, sizeof(response), 0);
+            else {
+                setSeq(&response.Header, expectedSeq);
+                setType(&response.Header, NACK);
+                send(sockfd, &response, sizeof(response), 0);
+            }
         }
     }
 
