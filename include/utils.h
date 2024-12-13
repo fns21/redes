@@ -4,7 +4,7 @@
 #include "message.h"
 
 #define CLIENT_INTERFACE "enp7s0"
-#define SERVER_INTERFACE "enp6s0"
+#define SERVER_INTERFACE "enp7s0f0"
 
 #define CRC_POLYNOMIAL 0xD5
 

@@ -21,7 +21,7 @@ int main() {
     char command[COMMAND_SIZE];
     char filename[FILENAME_SIZE] = "";
     FILE* file;
-     int operation = -1;
+    int operation = -1;
     
     int running = 1;   // Controle do loop principal
 
