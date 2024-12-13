@@ -3,8 +3,8 @@
 
 #include "message.h"
 
-#define CLIENT_INTERFACE "lo"
-#define SERVER_INTERFACE "lo"
+#define CLIENT_INTERFACE "enp7s0"
+#define SERVER_INTERFACE "enp6s0"
 
 #define CRC_POLYNOMIAL 0xD5
 
