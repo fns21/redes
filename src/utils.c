@@ -172,7 +172,7 @@ void calculateChecksum(const char *filename, uint32_t* checksum) {
 
 // Função para lidar com a escrita no arquivo
 void receiveData(Message *msg, FILE *file, Message *response) {
-    removeByteStuffing(msg->Data);
+    removeByte(msg->Data);
     fwrite(msg->Data, 1, getTam(msg->Header), file);
     fflush(file);
     setType(&response->Header, ACK);
@@ -211,7 +211,7 @@ void receiveChecksum(Message* msg, Message* response, char** outputFile){
 
 void sendData(FILE *file, Message *msg, uint8_t *seq, uint8_t *bytesRead, unsigned char *tempBuffer) {
     *bytesRead = fread(tempBuffer, 1, MAX_DATA_SIZE, file);
-    addByteStuffing(tempBuffer);
+    addByte(tempBuffer);
     fillPackage(msg, *seq, *bytesRead, DATA, tempBuffer);
 }
 
@@ -251,16 +251,16 @@ void configureTimeout(int sockfd) {
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 }
 
-void addByteStuffing(unsigned char *buffer) {
-    if(buffer[9] == 0x81)
+void addByte(unsigned char *buffer) {
+    if(buffer[9] == 0x81 && buffer[10] == 0x00)
         buffer[10] = 0xFF;
-    else if(buffer[9] == 0x88)
+    else if(buffer[9] == 0x88 && buffer[10] == 0x48)
         buffer[10] = 0xFE;
 }   
 
-void removeByteStuffing(unsigned char * buffer) {
-    if(buffer[9] == 0x81)
+void removeByte(unsigned char *buffer) {
+    if(buffer[9] == 0x81 && buffer[10] == 0xFF)
         buffer[10] = 0x00;
-    else if(buffer[9] == 0x88)
+    else if(buffer[9] == 0x88 && buffer[10] == 0xFE)
         buffer[10] = 0x48;
 }

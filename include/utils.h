@@ -3,8 +3,8 @@
 
 #include "message.h"
 
-#define CLIENT_INTERFACE "enp7s0"
-#define SERVER_INTERFACE "enp6s0"
+#define CLIENT_INTERFACE "enp6s0"
+#define SERVER_INTERFACE "enp7s0"
 
 #define CRC_POLYNOMIAL 0xD5
 
@@ -34,7 +34,7 @@ void sendFilename(const char *fileName, int *offset, int fileNameSize, Message *
 void sendSize(const char *fileName, Message *msg, uint8_t *seq, uint8_t *bytesRead);
 void sendChecksum(const char *fileName, Message *msg, uint8_t *seq, uint8_t *bytesRead);
 void configureTimeout(int sockfd);
-void addByteStuffing(unsigned char *buffer);
-void removeByteStuffing(unsigned char *buffer);
+void addByte(unsigned char *buffer);
+void removeByte(unsigned char *buffer);
 
 #endif

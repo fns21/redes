@@ -95,7 +95,7 @@ void partFileAndSend(const char *fileName, int sockfd, int operation) {
                     bytesRead = 0; // Preparar para o próximo pacote
                     break;
                 } else if (responseType == NACK) {
-                    //printf("NACK recebido. Retransmitindo pacote %u...\n", seq);
+                    printf("NACK recebido. Retransmitindo pacote %u...\n", seq);
                     break; // Retransmitir o mesmo pacote
                 } else if (responseType == ERROR) {
                     fprintf(stderr, "Erro recebido do servidor. Operação abortada.\n");
