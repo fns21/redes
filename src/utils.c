@@ -252,15 +252,15 @@ void configureTimeout(int sockfd) {
 }
 
 void addByteStuffing(unsigned char *buffer) {
-    if(buffer[10] == 0x81)
-        buffer[11] = 0xFF;
-    else if(buffer[10] == 0x88)
-        buffer[11] = 0xFF;
+    if(buffer[9] == 0x81)
+        buffer[10] = 0xFF;
+    else if(buffer[9] == 0x88)
+        buffer[10] = 0xFE;
 }   
 
-void removeByteStuffing(unsigned char *buffer) {
-    if(buffer[10] == 0x81)
-        buffer[11] = 0x00;
-    else if(buffer[10] == 0x88)
-        buffer[11] = 0x48;
+void removeByteStuffing(unsigned char * buffer) {
+    if(buffer[9] == 0x81)
+        buffer[10] = 0x00;
+    else if(buffer[9] == 0x88)
+        buffer[10] = 0x48;
 }
