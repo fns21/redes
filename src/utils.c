@@ -250,31 +250,36 @@ void configureTimeout(int sockfd) {
 }
 
 void addByteStuffing(unsigned char *buffer, uint8_t *size) {
-    uint8_t originalSize = *size;
     uint8_t newSize = 0;
-    unsigned char tempBuffer[2 * MAX_DATA_SIZE];
+    unsigned char tempBuffer[MAX_DATA_SIZE];
 
-    for (int i = 0; i < originalSize; i++) {
+    for (int i = 0; i < *size; i++) {
         tempBuffer[newSize++] = buffer[i];
-        if (i < originalSize - 1 && buffer[i] == 0x88 && buffer[i + 1] == 0x81) {
-            tempBuffer[newSize++] = 0xFF; // Inserir 0xFF após 0x88 e 0x81
+
+        // Verificar se o byte atual é 0x81 ou 0x88
+        if (buffer[i] == 0x81 || buffer[i] == 0x88) {
+            // Colocar 0xFF depois de 0x81 ou 0x88
+            if (newSize < MAX_DATA_SIZE - 1) {  // Garantir que há espaço para o byte extra
+                tempBuffer[newSize++] = 0xFF; // Inserir byte de stuffing
+            }
         }
     }
-    memcpy(buffer, tempBuffer, newSize);
-    *size = newSize;
+
+    // Copiar os dados modificados de volta para o buffer original
+    memcpy(buffer, tempBuffer, *size);
 }
 
 void removeByteStuffing(unsigned char *buffer, uint8_t *size) {
-    uint8_t originalSize = *size;
     uint8_t newSize = 0;
 
-    for (int i = 0; i < originalSize; i++) {
-        if (i < originalSize - 2 && buffer[i] == 0x88 && buffer[i + 1] == 0x81 && buffer[i + 2] == 0xFF) {
-            buffer[newSize++] = buffer[i++];
-            buffer[newSize++] = buffer[i++];
-        } else {
-            buffer[newSize++] = buffer[i];
+    for (int i = 0; i < *size; i++) {
+        // Copiar o byte atual para o novo buffer
+        buffer[newSize++] = buffer[i];
+
+        // Verificar se o byte é 0xFF após 0x81 ou 0x88
+        if ((buffer[i] == 0x81 || buffer[i] == 0x88) && i + 1 < *size && buffer[i + 1] == 0xFF) {
+            i++;  // Ignorar o byte 0xFF após 0x81 ou 0x88
         }
     }
-    *size = newSize;
+    *size = newSize;  // Atualizar o tamanho do buffer
 }
